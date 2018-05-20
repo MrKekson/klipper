@@ -12,18 +12,9 @@ config BOARD_DIRECTORY
     string
     default "lpc176x"
 
-choice
-    prompt "Processor model"
-    config MACH_LPC1768
-        bool "lpc1768"
-    config MACH_LPC1769
-        bool "lpc1769"
-endchoice
-
 config CLOCK_FREQ
     int
-    default 24000000 if MACH_LPC1768 # 96000000 / 4
-    default 30000000 if MACH_LPC1769 # 120000000 / 4
+    default 24000000 # 96000000 / 4
 
 config SMOOTHIEWARE_BOOTLOADER
     bool "Target board uses Smoothieware bootloader"
