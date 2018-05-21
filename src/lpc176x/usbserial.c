@@ -60,14 +60,6 @@ _sie_cmd(uint32_t cmd)
 }
 
 static void
-sie_cmd(uint32_t cmd)
-{
-    irqstatus_t flag = irq_save();
-    _sie_cmd(cmd);
-    irq_restore(flag);
-}
-
-static void
 sie_cmd_write(uint32_t cmd, uint32_t data)
 {
     irqstatus_t flag = irq_save();
@@ -83,6 +75,28 @@ sie_cmd_read(uint32_t cmd)
     irqstatus_t flag = irq_save();
     _sie_cmd(cmd);
     LPC_USB->USBCmdCode = 0x00000200 | (cmd << 16);
+    usb_wait(CDFULL);
+    uint32_t res = LPC_USB->USBCmdData;
+    irq_restore(flag);
+    return res;
+}
+
+static void
+sie_validate_buffer(uint32_t idx)
+{
+    irqstatus_t flag = irq_save();
+    _sie_cmd(SIE_CMD_SELECT | idx);
+    _sie_cmd(SIE_CMD_VALIDATE_BUFFER);
+    irq_restore(flag);
+}
+
+static uint32_t
+sie_clear_buffer(uint32_t idx)
+{
+    irqstatus_t flag = irq_save();
+    _sie_cmd(SIE_CMD_SELECT | idx);
+    _sie_cmd(SIE_CMD_CLEAR_BUFFER);
+    LPC_USB->USBCmdCode = 0x00000200 | (SIE_CMD_CLEAR_BUFFER << 16);
     usb_wait(CDFULL);
     uint32_t res = LPC_USB->USBCmdData;
     irq_restore(flag);
@@ -121,7 +135,7 @@ usb_write_packet(uint32_t ep, const void *data, uint_fast8_t len)
         data += sizeof(d);
         LPC_USB->USBTxData = cpu_to_le32(d);
     }
-    sie_cmd(SIE_CMD_VALIDATE_BUFFER);
+    sie_validate_buffer(ep);
 
     return len;
 }
@@ -156,7 +170,7 @@ usb_read_packet(uint32_t ep, void *data, uint_fast8_t max_len)
         xfer -= sizeof(d);
     }
     // Clear space for next packet
-    sts = sie_cmd_read(SIE_CMD_CLEAR_BUFFER);
+    sts = sie_clear_buffer(ep);
     if (sts & 0x01)
         // Packet overwritten
         return -1;
