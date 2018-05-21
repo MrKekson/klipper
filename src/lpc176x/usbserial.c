@@ -16,7 +16,7 @@
 // Internal endpoint addresses
 #define EP0OUT 0x00
 #define EP0IN 0x01
-#define EP1OUT 0x02
+#define EP1IN 0x03
 #define EP2OUT 0x04
 #define EP5IN 0x0b
 
@@ -218,7 +218,7 @@ realize_endpoint(uint32_t idx, uint32_t packet_size)
 void
 usb_set_configure(void)
 {
-    realize_endpoint(EP1OUT, USB_CDC_EP_ACM_SIZE);
+    realize_endpoint(EP1IN, USB_CDC_EP_ACM_SIZE);
     realize_endpoint(EP2OUT, USB_CDC_EP_BULK_OUT_SIZE);
     realize_endpoint(EP5IN, USB_CDC_EP_BULK_IN_SIZE);
     sie_cmd_write(SIE_CMD_CONFIGURE, 1);
