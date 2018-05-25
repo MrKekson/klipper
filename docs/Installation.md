@@ -65,12 +65,13 @@ sudo service klipper stop
 make flash FLASH_DEVICE=/dev/ttyACM0
 sudo service klipper start
 ```
-
 When flashing for the first time, make sure that OctoPrint is not
 connected directly to the printer (from the OctoPrint web page, under
 the "Connection" section, click "Disconnect"). The most common
 communication device is **/dev/ttyACM0** - see the
 [FAQ](FAQ.md#wheres-my-serial-port) for other possibilities.
+If you got errors, check the example configuration files, some 
+boards may require different approach regarding flashing.
 
 Configuring OctoPrint to use Klipper
 ====================================
